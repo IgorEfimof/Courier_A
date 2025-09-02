@@ -3,10 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon195.png">
+    
+    <!-- PWA мета-теги -->
+    <meta name="theme-color" content="#3498db">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="COURA">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Калькулятор курьера">
+    <meta name="msapplication-TileColor" content="#3498db">
+    <meta name="msapplication-tap-highlight" content="no">
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon195.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon195.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/icon32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/icon16.png">
+    <link rel="manifest" href="manifest.json">
+    
     <title>Калькулятор курьера</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -71,6 +84,9 @@
             padding: 10px;
             touch-action: manipulation;
             transition: background-color 0.3s, color 0.3s;
+            /* Запрет прокрутки страницы при использовании PWA */
+            overflow: hidden;
+            height: 100vh;
         }
 
         .container {
@@ -80,6 +96,9 @@
             border-radius: 12px;
             box-shadow: 0 4px 20px var(--shadow);
             overflow: hidden;
+            height: calc(100vh - 20px);
+            display: flex;
+            flex-direction: column;
         }
 
         header {
@@ -151,6 +170,8 @@
             display: flex;
             flex-wrap: wrap;
             padding: 12px;
+            overflow-y: auto;
+            flex: 1;
         }
 
         .input-section, .results-section {
@@ -440,6 +461,22 @@
             font-size: 1rem;
         }
 
+        .install-btn {
+            display: none;
+            position: fixed;
+            bottom: 70px;
+            right: 15px;
+            z-index: 1000;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            font-size: 24px;
+        }
+
         @media (max-width: 768px) {
             .content {
                 flex-direction: column;
@@ -522,6 +559,29 @@
             
             .compact-results {
                 grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Стили для полноэкранного режима PWA */
+        @media all and (display-mode: fullscreen) {
+            body {
+                padding: 0;
+            }
+            
+            .container {
+                border-radius: 0;
+                height: 100vh;
+            }
+        }
+
+        @media all and (display-mode: standalone) {
+            body {
+                padding: 0;
+            }
+            
+            .container {
+                border-radius: 0;
+                height: 100vh;
             }
         }
     </style>
@@ -695,6 +755,11 @@
         </div>
     </div>
 
+    <!-- Кнопка установки PWA -->
+    <button id="installBtn" class="install-btn">
+        <i class="fas fa-download"></i>
+    </button>
+
     <!-- Кастомная клавиатура -->
     <div class="custom-keyboard" id="custom-keyboard">
         <div class="keyboard-row">
@@ -729,6 +794,7 @@
             const clearHistoryBtn = document.getElementById('clear-history-btn');
             const themeToggle = document.getElementById('theme-toggle');
             const customKeyboard = document.getElementById('custom-keyboard');
+            const installBtn = document.getElementById('installBtn');
             
             // Параметры рабочего дня
             const startTimeInput = document.getElementById('start-time');
@@ -764,6 +830,7 @@
             
             // Текущее активное поле ввода
             let activeInput = null;
+            let deferredPrompt = null;
             
             // Предотвращение масштабирования при двойном тапе
             document.addEventListener('dblclick', function(e) {
@@ -1163,6 +1230,48 @@
             allInputs.forEach(input => {
                 input.addEventListener('input', calculate);
             });
+            
+            // PWA: Обработка установки приложения
+            window.addEventListener('beforeinstallprompt', (e) => {
+                // Предотвращаем автоматическое отображение подсказки
+                e.preventDefault();
+                // Сохраняем событие для последующего использования
+                deferredPrompt = e;
+                // Показываем кнопку установки
+                installBtn.style.display = 'block';
+            });
+            
+            // Обработчик для кнопки установки
+            installBtn.addEventListener('click', async () => {
+                if (!deferredPrompt) return;
+                
+                // Показываем подсказку установки
+                deferredPrompt.prompt();
+                
+                // Ждем, пока пользователь ответит на подсказку
+                const { outcome } = await deferredPrompt.userChoice;
+                
+                if (outcome === 'accepted') {
+                    console.log('Пользователь принял предложение установить приложение');
+                    installBtn.style.display = 'none';
+                }
+                
+                // Очищаем сохраненное событие
+                deferredPrompt = null;
+            });
+            
+            // Скрываем кнопку установки, если приложение уже установлено
+            window.addEventListener('appinstalled', () => {
+                installBtn.style.display = 'none';
+                deferredPrompt = null;
+                console.log('PWA было установлено');
+            });
+            
+            // Проверяем, запущено ли приложение в standalone режиме
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                console.log('Запущено как PWA');
+                installBtn.style.display = 'none';
+            }
             
             // Загрузка сохраненных данных и первоначальный расчет
             loadData();
