@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon195.png">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="COUR3">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Калькулятор курьера</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3498db;
+            --primary-light: #5dade2;
+            --secondary: #2c3e50;
+            --text: #2c3e50;
+            --text-light: #7f8c8d;
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --border: #e0e0e0;
+            --success: #27ae60;
+            --success-light: #2ecc71;
+            --warning: #e74c3c;
+            --warning-light: #ff6b6b;
+            --highlight: #f39c12;
+            --keyboard-bg: #2c3e50;
+            --key-bg: #3498db;
+            --shadow: rgba(0, 0, 0, 0.08);
+        }
+
+        .dark-theme {
+            --primary: #2980b9;
+            --primary-light: #3498db;
+            --secondary: #1a252f;
+            --text: #ecf0f1;
+            --text-light: #bdc3c7;
+            --bg: #1a252f;
+            --card-bg: #2c3e50;
+            --border: #4a6572;
+            --success: #2ecc71;
+            --success-light: #27ae60;
+            --warning: #e74c3c;
+            --warning-light: #ff6b6b;
+            --highlight: #f39c12;
+            --keyboard-bg: #1a252f;
+            --key-bg: #2980b9;
+            --shadow: rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        input, select {
+            -webkit-user-select: text;
+            user-select: text;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.4;
+            padding: 10px;
+            touch-action: manipulation;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px var(--shadow);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 1.3rem;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .theme-toggle-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-toggle {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 24px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .theme-toggle.active {
+            background-color: var(--secondary);
+        }
+
+        .theme-toggle-handle {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .theme-toggle.active .theme-toggle-handle {
+            transform: translateX(26px);
+        }
+
+        .theme-toggle-icon {
+            font-size: 10px;
+            color: #f39c12;
+        }
+
+        .theme-toggle-text {
+            margin-left: 6px;
+            font-size: 0.75rem;
+            color: white;
+        }
+
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 12px;
+        }
+
+        .input-section, .results-section {
+            flex: 1;
+            min-width: 300px;
+            padding: 10px;
+        }
+
+        .section-title {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            padding-bottom: 6px;
+            border-bottom: 2px solid var(--primary-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 0.75rem;
+            margin-bottom: 4px;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            background: var(--card-bg);
+            color: var(--text);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .compact-results {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .compact-result {
+            background: var(--card-bg);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 6px var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .compact-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--text-light);
+        }
+
+        .compact-value {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .today-summary {
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(41, 128, 185, 0.1));
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            text-align: center;
+            border: 1px solid var(--border);
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .today-amount {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--success);
+            margin: 5px 0;
+        }
+
+        .today-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .progress-container {
+            margin: 10px 0;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+            color: var(--text-light);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success-light), var(--success));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .buttons-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            background: transparent;
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
+        .btn-small:hover {
+            background: var(--warning);
+            color: white;
+        }
+
+        .custom-keyboard {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--keyboard-bg);
+            padding: 10px;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .keyboard-visible {
+            display: block;
+        }
+
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 6px;
+        }
+
+        .keyboard-key {
+            width: 50px;
+            height: 40px;
+            margin: 0 3px;
+            background: var(--key-bg);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .keyboard-key:active {
+            background: var(--primary-light);
+        }
+
+        .key-wide {
+            width: 100px;
+        }
+
+        .history-section {
+            margin-top: 12px;
+        }
+
+        .history-list {
+            max-height: 120px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 6px;
+            margin-bottom: 8px;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px;
+            font-size: 0.8rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-date {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .history-amount {
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        .history-total {
+            background: rgba(52, 152, 219, 0.1);
+            padding: 8px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            border: 1px solid var(--border);
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .total-label {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .total-amount {
+            color: var(--success);
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+                padding: 10px;
+            }
+            
+            .input-section, .results-section {
+                padding: 8px;
+                min-width: 100%;
+            }
+            
+            .form-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .today-amount {
+                font-size: 1.3rem;
+            }
+            
+            h1 {
+                font-size: 1.1rem;
+            }
+            
+            .compact-results {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 8px;
+            }
+            
+            .container {
+                border-radius: 10px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 6px;
+            }
+            
+            .compact-results {
+                grid-template-columns: 1fr;
+            }
+            
+            .today-details {
+                flex-direction: column;
+                gap: 3px;
+            }
+            
+            .keyboard-key {
+                width: 45px;
+                height: 35px;
+                font-size: 14px;
+            }
+            
+            .key-wide {
+                width: 90px;
+            }
+            
+            .buttons-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .theme-toggle-text {
+                display: none;
+            }
+        }
+
+        /* Стили для iPad в альбомной ориентации */
+        @media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+            .content {
+                flex-direction: row;
+            }
+            
+            .input-section, .results-section {
+                min-width: auto;
+            }
+            
+            .compact-results {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body class="light-theme">
+    <div class="container">
+        <header>
+            <h1>Калькулятор курьера</h1>
+            <div class="theme-toggle-container">
+                <div class="theme-toggle" id="theme-toggle">
+                    <div class="theme-toggle-handle">
+                        <i class="fas fa-sun theme-toggle-icon"></i>
+                    </div>
+                </div>
+                <span class="theme-toggle-text">Тёмная</span>
+            </div>
+        </header>
+        
+        <div class="content">
+            <div class="input-section">
+                <div class="section-title">Рабочий день</div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="start-time">Начало</label>
+                        <input type="time" id="start-time" value="09:00">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="current-time">Сейчас</label>
+                        <input type="time" id="current-time">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="end-time">Конец</label>
+                        <input type="time" id="end-time" value="18:00">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="orders-count">Заказы</label>
+                        <input type="text" id="orders-count" inputmode="none" readonly value="21">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="earned-amount">Сумма (руб)</label>
+                        <input type="text" id="earned-amount" inputmode="none" readonly value="3519,53">
+                    </div>
+                </div>
+                
+                <div class="section-title">Расходы</div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="fuel-per-day">Бензин (л)</label>
+                        <input type="text" id="fuel-per-day" inputmode="none" readonly value="5">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="fuel-price">Цена (руб)</label>
+                        <input type="text" id="fuel-price" inputmode="none" readonly value="50">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="other-costs">Другие расходы</label>
+                        <input type="text" id="other-costs" inputmode="none" readonly value="200">
+                    </div>
+                </div>
+                
+                <div class="section-title">График</div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="work-days-week">Дней/неделя</label>
+                        <input type="text" id="work-days-week" inputmode="none" readonly value="6">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="work-days-month">Дней/месяц</label>
+                        <input type="text" id="work-days-month" inputmode="none" readonly value="24">
+                    </div>
+                </div>
+                
+                <div class="buttons-row">
+                    <button id="save-day-btn">Сохранить день</button>
+                    <button id="reset-btn" class="btn-warning">Сбросить всё</button>
+                </div>
+            </div>
+            
+            <div class="results-section">
+                <div class="today-summary">
+                    <div>Прогноз на конец дня</div>
+                    <div class="today-amount" id="projected-income">3519,53 ₽</div>
+                    <div class="today-details">
+                        <span id="projected-orders">21 заказ</span>
+                        <span id="projected-profit">3069,53 ₽ чистыми</span>
+                    </div>
+                </div>
+                
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Прогресс дня</span>
+                        <span id="progress-percent">50%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill" style="width: 50%"></div>
+                    </div>
+                </div>
+                
+                <div class="compact-results">
+                    <div class="compact-result">
+                        <div class="compact-title">Заказов</div>
+                        <div class="compact-value" id="current-orders">21</div>
+                    </div>
+                    
+                    <div class="compact-result">
+                        <div class="compact-title">Доход</div>
+                        <div class="compact-value" id="current-income">3519,53 ₽</div>
+                    </div>
+                    
+                    <div class="compact-result">
+                        <div class="compact-title">Расходы</div>
+                        <div class="compact-value" id="current-costs">450 ₽</div>
+                    </div>
+                    
+                    <div class="compact-result">
+                        <div class="compact-title">Чистый доход</div>
+                        <div class="compact-value" id="current-profit">3069,53 ₽</div>
+                    </div>
+                </div>
+                
+                <div class="section-title">Прогноз заработка</div>
+                
+                <div class="compact-results">
+                    <div class="compact-result">
+                        <div class="compact-title">На конец дня</div>
+                        <div class="compact-value" id="daily-projection">3069,53 ₽</div>
+                    </div>
+                    
+                    <div class="compact-result">
+                        <div class="compact-title">На конец недели</div>
+                        <div class="compact-value" id="weekly-projection">18417,18 ₽</div>
+                    </div>
+                    
+                    <div class="compact-result">
+                        <div class="compact-title">На конец месяца</div>
+                        <div class="compact-value" id="monthly-projection">73668,72 ₽</div>
+                    </div>
+                </div>
+                
+                <div class="history-section">
+                    <div class="section-title">
+                        <span>История дней</span>
+                        <button id="clear-history-btn" class="btn-small">Очистить</button>
+                    </div>
+                    <div class="history-list" id="history-list">
+                        <div class="history-item">
+                            <span class="history-date">12.05.2023</span>
+                            <span class="history-amount">3200 ₽</span>
+                        </div>
+                        <div class="history-item">
+                            <span class="history-date">11.05.2023</span>
+                            <span class="history-amount">2850 ₽</span>
+                        </div>
+                    </div>
+                    <div class="history-total">
+                        <span class="total-label">Общий заработок:</span>
+                        <span class="total-amount" id="history-total">6050 ₽</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Кастомная клавиатура -->
+    <div class="custom-keyboard" id="custom-keyboard">
+        <div class="keyboard-row">
+            <button class="keyboard-key" data-value="7">7</button>
+            <button class="keyboard-key" data-value="8">8</button>
+            <button class="keyboard-key" data-value="9">9</button>
+            <button class="keyboard-key" data-action="backspace"><i class="fas fa-backspace"></i></button>
+        </div>
+        <div class="keyboard-row">
+            <button class="keyboard-key" data-value="4">4</button>
+            <button class="keyboard-key" data-value="5">5</button>
+            <button class="keyboard-key" data-value="6">6</button>
+            <button class="keyboard-key" data-action="clear">C</button>
+        </div>
+        <div class="keyboard-row">
+            <button class="keyboard-key" data-value="1">1</button>
+            <button class="keyboard-key" data-value="2">2</button>
+            <button class="keyboard-key" data-value="3">3</button>
+            <button class="keyboard-key" data-value=",">,</button>
+        </div>
+        <div class="keyboard-row">
+            <button class="keyboard-key key-wide" data-value="0">0</button>
+            <button class="keyboard-key key-wide" data-action="hide">Готово</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Элементы DOM
+            const resetBtn = document.getElementById('reset-btn');
+            const saveDayBtn = document.getElementById('save-day-btn');
+            const clearHistoryBtn = document.getElementById('clear-history-btn');
+            const themeToggle = document.getElementById('theme-toggle');
+            const customKeyboard = document.getElementById('custom-keyboard');
+            
+            // Параметры рабочего дня
+            const startTimeInput = document.getElementById('start-time');
+            const currentTimeInput = document.getElementById('current-time');
+            const endTimeInput = document.getElementById('end-time');
+            const ordersCountInput = document.getElementById('orders-count');
+            const earnedAmountInput = document.getElementById('earned-amount');
+            
+            // Расходы
+            const fuelPerDayInput = document.getElementById('fuel-per-day');
+            const fuelPriceInput = document.getElementById('fuel-price');
+            const otherCostsInput = document.getElementById('other-costs');
+            
+            // График работы
+            const workDaysWeekInput = document.getElementById('work-days-week');
+            const workDaysMonthInput = document.getElementById('work-days-month');
+            
+            // Результаты
+            const projectedIncomeElement = document.getElementById('projected-income');
+            const projectedOrdersElement = document.getElementById('projected-orders');
+            const projectedProfitElement = document.getElementById('projected-profit');
+            const progressPercentElement = document.getElementById('progress-percent');
+            const progressFillElement = document.getElementById('progress-fill');
+            const dailyProjectionElement = document.getElementById('daily-projection');
+            const weeklyProjectionElement = document.getElementById('weekly-projection');
+            const monthlyProjectionElement = document.getElementById('monthly-projection');
+            const currentOrdersElement = document.getElementById('current-orders');
+            const currentIncomeElement = document.getElementById('current-income');
+            const currentCostsElement = document.getElementById('current-costs');
+            const currentProfitElement = document.getElementById('current-profit');
+            const historyListElement = document.getElementById('history-list');
+            const historyTotalElement = document.getElementById('history-total');
+            
+            // Текущее активное поле ввода
+            let activeInput = null;
+            
+            // Предотвращение масштабирования при двойном тапе
+            document.addEventListener('dblclick', function(e) {
+                e.preventDefault();
+            }, { passive: false });
+            
+            // Предотвращение масштабирования при мультитаче
+            document.addEventListener('touchstart', function(e) {
+                if (e.touches.length > 1) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+            
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', function(e) {
+                const now = (new Date()).getTime();
+                if (now - lastTouchEnd <= 300) {
+                    e.preventDefault();
+                }
+                lastTouchEnd = now;
+            }, { passive: false });
+            
+            // Установка текущего времени по умолчанию
+            function setCurrentTime() {
+                const now = new Date();
+                const hours = now.getHours().toString().padStart(2, '0');
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                currentTimeInput.value = `${hours}:${minutes}`;
+            }
+            
+            setCurrentTime();
+            
+            // Функция для замены точки на запятую в числах
+            function formatNumberWithComma(number) {
+                return number.toString().replace('.', ',');
+            }
+            
+            // Функция для замены запятой на точку в числах
+            function parseNumberWithComma(value) {
+                if (typeof value === 'string') {
+                    return parseFloat(value.replace(',', '.'));
+                }
+                return value;
+            }
+            
+            // Сохранение данных в localStorage
+            function saveData() {
+                const data = {
+                    startTime: startTimeInput.value,
+                    endTime: endTimeInput.value,
+                    ordersCount: ordersCountInput.value,
+                    earnedAmount: earnedAmountInput.value,
+                    fuelPerDay: fuelPerDayInput.value,
+                    fuelPrice: fuelPriceInput.value,
+                    otherCosts: otherCostsInput.value,
+                    workDaysWeek: workDaysWeekInput.value,
+                    workDaysMonth: workDaysMonthInput.value,
+                    theme: document.body.classList.contains('dark-theme') ? 'dark' : 'light'
+                };
+                
+                localStorage.setItem('courierCalculatorData', JSON.stringify(data));
+            }
+            
+            // Загрузка данных из localStorage
+            function loadData() {
+                const savedData = localStorage.getItem('courierCalculatorData');
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    
+                    startTimeInput.value = data.startTime || '09:00';
+                    endTimeInput.value = data.endTime || '18:00';
+                    ordersCountInput.value = data.ordersCount || '21';
+                    earnedAmountInput.value = data.earnedAmount || '3519,53';
+                    fuelPerDayInput.value = data.fuelPerDay || '5';
+                    fuelPriceInput.value = data.fuelPrice || '50';
+                    otherCostsInput.value = data.otherCosts || '200';
+                    workDaysWeekInput.value = data.workDaysWeek || '6';
+                    workDaysMonthInput.value = data.workDaysMonth || '24';
+                    
+                    // Загрузка темы
+                    if (data.theme === 'dark') {
+                        document.body.classList.add('dark-theme');
+                        themeToggle.classList.add('active');
+                        const icon = themeToggle.querySelector('.theme-toggle-icon');
+                        icon.className = 'fas fa-moon theme-toggle-icon';
+                    }
+                    
+                    calculate();
+                }
+            }
+            
+            // Загрузка истории из localStorage
+            function loadHistory() {
+                const savedHistory = localStorage.getItem('courierHistory');
+                if (savedHistory) {
+                    const history = JSON.parse(savedHistory);
+                    updateHistoryList(history);
+                }
+            }
+            
+            // Обновление списка истории
+            function updateHistoryList(history) {
+                historyListElement.innerHTML = '';
+                
+                if (history.length === 0) {
+                    historyListElement.innerHTML = '<div class="history-item">Нет данных</div>';
+                    updateHistoryTotal(0);
+                    return;
+                }
+                
+                let total = 0;
+                
+                history.slice().reverse().forEach(item => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    
+                    const dateElement = document.createElement('span');
+                    dateElement.className = 'history-date';
+                    dateElement.textContent = item.date;
+                    
+                    const amountElement = document.createElement('span');
+                    amountElement.className = 'history-amount';
+                    amountElement.textContent = formatNumberWithComma(item.amount) + ' ₽';
+                    
+                    historyItem.appendChild(dateElement);
+                    historyItem.appendChild(amountElement);
+                    historyListElement.appendChild(historyItem);
+                    
+                    total += item.amount;
+                });
+                
+                updateHistoryTotal(total);
+            }
+            
+            // Обновление общей суммы истории
+            function updateHistoryTotal(total) {
+                historyTotalElement.textContent = formatNumberWithComma(total.toFixed(2)) + ' ₽';
+            }
+            
+            // Очистка истории
+            function clearHistory() {
+                if (confirm('Вы уверены, что хотите очистить всю историю? Это действие нельзя отменить.')) {
+                    localStorage.removeItem('courierHistory');
+                    updateHistoryList([]);
+                }
+            }
+            
+            // Сохранение дня в историю
+            function saveDay() {
+                const date = new Date().toLocaleDateString('ru-RU');
+                const amount = parseNumberWithComma(earnedAmountInput.value);
+                
+                let history = [];
+                const savedHistory = localStorage.getItem('courierHistory');
+                if (savedHistory) {
+                    history = JSON.parse(savedHistory);
+                }
+                
+                // Проверяем, есть ли уже запись за сегодня
+                const todayIndex = history.findIndex(item => item.date === date);
+                if (todayIndex !== -1) {
+                    if (!confirm('Запись за сегодня уже существует. Перезаписать?')) {
+                        return;
+                    }
+                    history[todayIndex].amount = amount;
+                } else {
+                    history.push({ date, amount });
+                }
+                
+                localStorage.setItem('courierHistory', JSON.stringify(history));
+                updateHistoryList(history);
+                
+                alert('Данные за день сохранены!');
+            }
+            
+            // Сброс данных к значениям по умолчанию
+            function resetData() {
+                if (confirm('Вы уверены, что хотите сбросить все настройки к значениям по умолчанию?')) {
+                    startTimeInput.value = '09:00';
+                    endTimeInput.value = '18:00';
+                    ordersCountInput.value = '21';
+                    earnedAmountInput.value = '3519,53';
+                    fuelPerDayInput.value = '5';
+                    fuelPriceInput.value = '50';
+                    otherCostsInput.value = '200';
+                    workDaysWeekInput.value = '6';
+                    workDaysMonthInput.value = '24';
+                    setCurrentTime();
+                    
+                    localStorage.removeItem('courierCalculatorData');
+                    calculate();
+                }
+            }
+            
+            // Переключение темы
+            function toggleTheme() {
+                const isDark = document.body.classList.toggle('dark-theme');
+                themeToggle.classList.toggle('active', isDark);
+                
+                // Обновляем иконку
+                const icon = themeToggle.querySelector('.theme-toggle-icon');
+                if (isDark) {
+                    icon.className = 'fas fa-moon theme-toggle-icon';
+                } else {
+                    icon.className = 'fas fa-sun theme-toggle-icon';
+                }
+                
+                // Сохраняем данные
+                saveData();
+            }
+            
+            // Преобразование времени в минуты
+            function timeToMinutes(timeStr) {
+                const [hours, minutes] = timeStr.split(':').map(Number);
+                return hours * 60 + minutes;
+            }
+            
+            // Форматирование числа с разделителями
+            function formatNumber(number) {
+                return new Intl.NumberFormat('ru-RU', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(number);
+            }
+            
+            // Расчет показателей
+            function calculate() {
+                // Получаем значения из полей ввода
+                const startTime = startTimeInput.value;
+                const currentTime = currentTimeInput.value;
+                const endTime = endTimeInput.value;
+                const ordersCount = parseNumberWithComma(ordersCountInput.value) || 0;
+                const earnedAmount = parseNumberWithComma(earnedAmountInput.value) || 0;
+                
+                const fuelPerDay = parseNumberWithComma(fuelPerDayInput.value) || 0;
+                const fuelPrice = parseNumberWithComma(fuelPriceInput.value) || 0;
+                const otherCosts = parseNumberWithComma(otherCostsInput.value) || 0;
+                
+                const workDaysWeek = parseNumberWithComma(workDaysWeekInput.value) || 0;
+                const workDaysMonth = parseNumberWithComma(workDaysMonthInput.value) || 0;
+                
+                // Рассчитываем продолжительность рабочего дня и прошедшее время
+                const startMinutes = timeToMinutes(startTime);
+                const currentMinutes = timeToMinutes(currentTime);
+                const endMinutes = timeToMinutes(endTime);
+                
+                let totalDayMinutes = endMinutes - startMinutes;
+                let passedMinutes = currentMinutes - startMinutes;
+                
+                // Обработка случая, когда рабочий день переходит через полночь
+                if (totalDayMinutes < 0) {
+                    totalDayMinutes += 24 * 60;
+                }
+                if (passedMinutes < 0) {
+                    passedMinutes += 24 * 60;
+                }
+                
+                // Проверяем, чтобы значения были корректными
+                if (totalDayMinutes <= 0 || passedMinutes < 0) {
+                    return;
+                }
+                
+                // Рассчитываем прогресс дня в процентах
+                const progressPercent = Math.min(100, Math.max(0, (passedMinutes / totalDayMinutes) * 100));
+                progressPercentElement.textContent = `${progressPercent.toFixed(1)}%`;
+                progressFillElement.style.width = `${progressPercent}%`;
+                
+                // Рассчитываем текущие показатели
+                const dailyFuelCost = fuelPerDay * fuelPrice;
+                const dailyCosts = dailyFuelCost + otherCosts;
+                const currentCostsValue = dailyCosts * (progressPercent / 100);
+                const currentProfit = earnedAmount - currentCostsValue;
+                
+                // Рассчитываем прогнозируемые показатели на конец дня
+                let projectedOrders = ordersCount;
+                let projectedIncome = earnedAmount;
+                
+                if (progressPercent > 0 && progressPercent < 100) {
+                    projectedOrders = ordersCount * (100 / progressPercent);
+                    projectedIncome = earnedAmount * (100 / progressPercent);
+                }
+                
+                const projectedDailyCosts = dailyCosts;
+                const projectedProfit = projectedIncome - projectedDailyCosts;
+                
+                // Рассчитываем прогноз на неделю и месяц
+                const weeklyProjection = projectedProfit * workDaysWeek;
+                const monthlyProjection = projectedProfit * workDaysMonth;
+                
+                // Обновляем результаты на странице
+                currentOrdersElement.textContent = ordersCount;
+                currentIncomeElement.textContent = `${formatNumberWithComma(earnedAmount.toFixed(2))} ₽`;
+                currentCostsElement.textContent = `${formatNumberWithComma(currentCostsValue.toFixed(2))} ₽`;
+                currentProfitElement.textContent = `${formatNumberWithComma(currentProfit.toFixed(2))} ₽`;
+                
+                projectedIncomeElement.textContent = `${formatNumberWithComma(projectedIncome.toFixed(2))} ₽`;
+                projectedOrdersElement.textContent = `${Math.round(projectedOrders)} заказов`;
+                projectedProfitElement.textContent = `${formatNumberWithComma(projectedProfit.toFixed(2))} ₽ чистыми`;
+                
+                dailyProjectionElement.textContent = `${formatNumberWithComma(projectedProfit.toFixed(2))} ₽`;
+                weeklyProjectionElement.textContent = `${formatNumberWithComma(weeklyProjection.toFixed(2))} ₽`;
+                monthlyProjectionElement.textContent = `${formatNumberWithComma(monthlyProjection.toFixed(2))} ₽`;
+                
+                // Сохраняем данные
+                saveData();
+            }
+            
+            // Показать кастомную клавиатуру
+            function showKeyboard() {
+                customKeyboard.classList.add('keyboard-visible');
+            }
+            
+            // Скрыть кастомную клавиатуру
+            function hideKeyboard() {
+                customKeyboard.classList.remove('keyboard-visible');
+                activeInput = null;
+            }
+            
+            // Обработчики событий для полей ввода
+            const allInputs = document.querySelectorAll('input[type="text"]');
+            allInputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    activeInput = this;
+                    showKeyboard();
+                });
+                
+                // Отключаем стандартную клавиатуру
+                input.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    this.focus();
+                });
+            });
+            
+            // Обработчики для времени
+            startTimeInput.addEventListener('change', calculate);
+            currentTimeInput.addEventListener('change', calculate);
+            endTimeInput.addEventListener('change', calculate);
+            
+            // Обработчики для кнопок кастомной клавиатуры
+            document.querySelectorAll('.keyboard-key').forEach(key => {
+                key.addEventListener('click', function() {
+                    if (!activeInput) return;
+                    
+                    const value = this.getAttribute('data-value');
+                    const action = this.getAttribute('data-action');
+                    
+                    if (action === 'backspace') {
+                        // Удаление последнего символа
+                        activeInput.value = activeInput.value.slice(0, -1);
+                    } else if (action === 'clear') {
+                        // Очистка поля
+                        activeInput.value = '';
+                    } else if (action === 'hide') {
+                        // Скрытие клавиатуры
+                        hideKeyboard();
+                        return;
+                    } else if (value) {
+                        // Добавление значения
+                        // Проверка для десятичных чисел
+                        if (value === ',' && activeInput.value.includes(',')) {
+                            return; // Не добавляем вторую запятую
+                        }
+                        
+                        // Если поле пустое и добавляем запятую, то добавляем "0," вместо просто ","
+                        if (value === ',' && activeInput.value === '') {
+                            activeInput.value = '0,';
+                        } else {
+                            activeInput.value += value;
+                        }
+                    }
+                    
+                    // Запускаем расчет после изменения значения
+                    calculate();
+                });
+            });
+            
+            // Скрытие клавиатуры при клике вне поля ввода
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('input') && !e.target.closest('.custom-keyboard')) {
+                    hideKeyboard();
+                }
+            });
+            
+            // Обработчик события для кнопки сброса
+            resetBtn.addEventListener('click', resetData);
+            
+            // Обработчик события для кнопки сохранения дня
+            saveDayBtn.addEventListener('click', saveDay);
+            
+            // Обработчик события для кнопки очистки истории
+            clearHistoryBtn.addEventListener('click', clearHistory);
+            
+            // Обработчик события для переключения темы
+            themeToggle.addEventListener('click', toggleTheme);
+            
+            // Автоматический расчет при изменении любого поля
+            allInputs.forEach(input => {
+                input.addEventListener('input', calculate);
+            });
+            
+            // Загрузка сохраненных данных и первоначальный расчет
+            loadData();
+            loadHistory();
+            calculate();
+            
+            // Обновление текущего времени каждую минуту
+            setInterval(setCurrentTime, 60000);
+            setInterval(calculate, 30000); // Пересчет каждые 30 секунд
+        });
+    </script>
+</body>
+</html>
